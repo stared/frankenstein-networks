@@ -1,0 +1,14 @@
+project: AL
+
+name: Cifar10 classification
+description: ""
+
+environment: pytorch-0.4.0-gpu-py3
+worker: s-k80-preemptible
+
+parameters:
+  epochs: 20
+  learning_rate: 0.0001
+  model:
+    value: 'logistic'
+    description: 'logistic or mlp or conv'
