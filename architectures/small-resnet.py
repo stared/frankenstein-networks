@@ -19,7 +19,6 @@ def conv1x1(in_planes, out_planes, stride=1):
 
 
 class BasicBlock(nn.Module):
-    expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
@@ -64,19 +63,19 @@ class MicroResNet(nn.Module):
         self.layer1 = self._make_layer(64, 2)
         self.layer2 = self._make_layer(128, 2, stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(128 * BasicBlock.expansion, num_classes)
+        self.fc = nn.Linear(128, num_classes)
 
     def _make_layer(self, planes, blocks, stride=1):
         downsample = None
-        if stride != 1 or self.inplanes != planes * BasicBlock.expansion:
+        if stride != 1 or self.inplanes != planes:
             downsample = nn.Sequential(
-                conv1x1(self.inplanes, planes * BasicBlock.expansion, stride),
-                nn.BatchNorm2d(planes * BasicBlock.expansion),
+                conv1x1(self.inplanes, planes, stride),
+                nn.BatchNorm2d(planes),
             )
 
         layers = []
         layers.append(BasicBlock(self.inplanes, planes, stride, downsample))
-        self.inplanes = planes * BasicBlock.expansion
+        self.inplanes = planes
         for _ in range(1, blocks):
             layers.append(BasicBlock(self.inplanes, planes))
 
