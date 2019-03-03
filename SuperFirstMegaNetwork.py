@@ -119,11 +119,12 @@ class Flatten(nn.Module):
 
 
 class PrimeNet(nn.Module):
-    def __init__(self, activation_fun, reduction_fun, conv_block_count, conv_count, linear_count=1):
+    def __init__(self, activation_fun, reduction_fun, conv_block_count, conv_count, linear_count=1, k_size=3):
 
         # when 32x32 there can be conv_block in [0,4]
         super().__init__()
         init_size = 32
+		self.kernel_size=k_size
         self.activation_fun = activation_fun
         self.reduction_fun = reduction_fun
         self.conv_block = []
@@ -160,14 +161,14 @@ class PrimeNet(nn.Module):
 
     def _conv_block(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=self.kernel_size, padding=1),
             self.activation_fun(inplace=True),
             self.reduction_fun(2, 2)
         )
 
     def _conv(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=self.kernel_size, padding=1),
             self.activation_fun(inplace=True)
         )
 
