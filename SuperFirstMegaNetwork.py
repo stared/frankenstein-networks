@@ -196,10 +196,20 @@ class PrimeNet(nn.Module):
             x = linear(x)
         x = self.fc(x)
         return x
-#
-# model1=PrimeNet(nn.ReLU, nn.MaxPool2d,3,2,5 )
-# criterion = nn.CrossEntropyLoss()
-# optimizer1 = optim.Adam(model1.parameters(), lr=1e-4)
-# epoch_num=20
-#
-# model1_trained = train_model(model1, criterion, optimizer1, num_epochs=epoch_num)
+		
+def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
+    if not intermediate_channels:
+        intermediate_channels = in_channels
+    return nn.Sequential(
+        nn.Conv2d(in_channels, intermediate_channels, kernel_size=1, padding=0),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(intermediate_channels, out_channels, kernel_size=1, padding=0),
+        nn.ReLU(inplace=True)
+    )
+def make_connector_1conv(in_channels, out_channels, intermediate_channels=None):
+    if not intermediate_channels:
+        intermediate_channels = in_channels
+    return nn.Sequential(
+        nn.Conv2d(in_channels, intermediate_channels, kernel_size=1, padding=0),
+        nn.ReLU(inplace=True)
+    )
