@@ -128,41 +128,48 @@ class PrimeNet(nn.Module):
         self.ch_nums=[]
 
         ch_in = 1
-        self.ch_nums.append(ch_in)
         # hear it can be another initial ch_out
         ch_out = init_size / 2
 
+        self.ch_nums.append((ch_in,ch_out))
         for i in range(conv_block_count):
             print("output size conv_block: {}".format(ch_out))
             self.conv_block.append(self._conv_block(int(ch_in), int(ch_out)))
             ch_in = ch_out
-            self.ch_nums.append(ch_in)
             ch_out *= 2
+            if i!=conv_block_count-1:
+                self.ch_nums.append((ch_in, ch_out))
         ch_out /= 2
+
+       # self.ch_nums.append((ch_in,ch_out))
         print("output size beetween: {}".format(ch_out))
         for i in range(conv_count):
             print("output size conv: {}".format(ch_out))
+            if i!=conv_count-1:
+                self.ch_nums.append((ch_in, ch_out))
             self.conv.append(self._conv(int(ch_in), int(ch_out)))
             ch_in = ch_out
-            self.ch_nums.append(ch_in)
-            # ch_out=
+
+
         ch_in = int(ch_out * ((init_size / (2 ** conv_block_count)) ** 2))
-        self.ch_nums.append(ch_in)
         ch_out = 128
+        self.ch_nums.append((ch_in, ch_out))
+
         print("linear input size: {}".format(ch_in))
         self.linear_first = self._linear_first(int(ch_in), int(ch_out))
         ch_in = ch_out
-        self.ch_nums.append(ch_in)
+        self.ch_nums.append((ch_in, ch_out))
         for i in range(linear_count):
             print("output size linear: {}".format(ch_out))
             self.linear.append(self._linear(int(ch_in), int(ch_out)))
             ch_in = ch_out
-            self.ch_nums.append(ch_in)
+            self.ch_nums.append((ch_in, ch_out))
             # ch_out=
         ch_in=ch_out
-        self.ch_nums.append(ch_in)
+        ch_out=len(classes)
+        self.ch_nums.append((ch_in, ch_out))
         self.fc = nn.Sequential(
-            nn.Linear(ch_in, len(classes))
+            nn.Linear(ch_in, ch_out)
         )
 
     def _conv_block(self, in_channels, out_channels):
@@ -203,8 +210,11 @@ class PrimeNet(nn.Module):
             x = linear(x)
         x = self.fc(x)
         return x
-    def give_num_of_ch_when_cut(self, net_before_layer_count):
-        return self.ch_nums[net_before_layer_count]
+    def give_num_of_ch_in_when_cut(self, net_before_layer_count):
+        #for linear after net too
+        return int(self.ch_nums[net_before_layer_count-1][1])
+    def give_num_of_ch_out_when_cut(self, net_before_layer_count):
+        return int(self.ch_nums[net_before_layer_count][0])
 def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
     if not intermediate_channels:
         intermediate_channels = in_channels
@@ -229,8 +239,7 @@ class SewnConvNet(nn.Module):
         self.net_before = net_before.eval()
         self.net_after = net_after.eval()
         self.connector = connector
-
-        self._assert_channels()
+        #self._assert_channels()
 
     def forward(self, x):
         x = self.net_before(x)
