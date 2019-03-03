@@ -203,10 +203,8 @@ class PrimeNet(nn.Module):
             x = linear(x)
         x = self.fc(x)
         return x
-    def give_num_of_in_ch_when_cut(self, net_before_layer_count):
+    def give_num_of_ch_when_cut(self, net_before_layer_count):
         return self.ch_nums[net_before_layer_count]
-    def give_num_of_out_ch_when_cut(self):
-        return 0
 def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
     if not intermediate_channels:
         intermediate_channels = in_channels
