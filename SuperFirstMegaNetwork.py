@@ -125,13 +125,18 @@ class PrimeNet(nn.Module):
         self.conv_block = []
         self.conv = []
         self.linear = []
+        self.ch_nums=[]
+
         ch_in = 1
+        self.ch_nums.append(ch_in)
         # hear it can be another initial ch_out
         ch_out = init_size / 2
+
         for i in range(conv_block_count):
             print("output size conv_block: {}".format(ch_out))
             self.conv_block.append(self._conv_block(int(ch_in), int(ch_out)))
             ch_in = ch_out
+            self.ch_nums.append(ch_in)
             ch_out *= 2
         ch_out /= 2
         print("output size beetween: {}".format(ch_out))
@@ -139,19 +144,25 @@ class PrimeNet(nn.Module):
             print("output size conv: {}".format(ch_out))
             self.conv.append(self._conv(int(ch_in), int(ch_out)))
             ch_in = ch_out
+            self.ch_nums.append(ch_in)
             # ch_out=
         ch_in = int(ch_out * ((init_size / (2 ** conv_block_count)) ** 2))
+        self.ch_nums.append(ch_in)
         ch_out = 128
         print("linear input size: {}".format(ch_in))
         self.linear_first = self._linear_first(int(ch_in), int(ch_out))
         ch_in = ch_out
+        self.ch_nums.append(ch_in)
         for i in range(linear_count):
             print("output size linear: {}".format(ch_out))
             self.linear.append(self._linear(int(ch_in), int(ch_out)))
             ch_in = ch_out
+            self.ch_nums.append(ch_in)
             # ch_out=
+        ch_in=ch_out
+        self.ch_nums.append(ch_in)
         self.fc = nn.Sequential(
-            nn.Linear(ch_out, len(classes))
+            nn.Linear(ch_in, len(classes))
         )
 
     def _conv_block(self, in_channels, out_channels):
@@ -192,8 +203,10 @@ class PrimeNet(nn.Module):
             x = linear(x)
         x = self.fc(x)
         return x
-
-
+    def give_num_of_in_ch_when_cut(self, net_before_layer_count):
+        return self.ch_nums[net_before_layer_count]
+    def give_num_of_out_ch_when_cut(self):
+        return 0
 def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
     if not intermediate_channels:
         intermediate_channels = in_channels
@@ -205,11 +218,9 @@ def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
     )
 
 
-def make_connector_1conv(in_channels, out_channels, intermediate_channels=None):
-    if not intermediate_channels:
-        intermediate_channels = in_channels
+def make_connector_1conv(in_channels, out_channels):
     return nn.Sequential(
-        nn.Conv2d(in_channels, intermediate_channels, kernel_size=1, padding=0),
+        nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0),
         nn.ReLU(inplace=True)
     )
 
