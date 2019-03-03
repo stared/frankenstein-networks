@@ -242,9 +242,13 @@ class SewnConvNet(nn.Module):
         #self._assert_channels()
 
     def forward(self, x):
+        print("rozmiar przed x: {}",x.shape)
         x = self.net_before(x)
+        print("rozmiar przed connector x: {}", x.shape)
         x = self.connector(x)
+        print("rozmiar po connector x: {}", x.shape)
         x = self.net_after(x)
+        print("rozmiar powszystkim x: {}", x.shape)
         return x
 
     def _assert_channels(self):
