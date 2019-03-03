@@ -1,14 +1,15 @@
-project: AL
+project: brainhackwarsaw/CIFAR10
 
-name: Cifar10 classification
+name: CIFAR10
 description: ""
 
-environment: pytorch-0.4.0-gpu-py3
+environment: pytorch-1.0.0-gpu-py3
 worker: s-k80-preemptible
 
 parameters:
-  epochs: 20
+  epochs: 10
   learning_rate: 0.0001
+  batch_size: 64
   model:
-    value: 'logistic'
+    value: 'conv'
     description: 'logistic or mlp or conv'

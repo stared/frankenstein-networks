@@ -50,7 +50,7 @@ class ConvNet(nn.Module):
 
 
 MODELS = {
-    'logistic': LogisticRegression(),
-    'mlp': MLP(),
-    'conv': ConvNet()
+    'logistic': LogisticRegression,
+    'mlp': MLP,
+    'conv': ConvNet
 }

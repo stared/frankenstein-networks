@@ -73,8 +73,7 @@ def save_all(model):
     torch.save(model.state_dict(), '/output/weights.h5')
     print("Model saved.")
 
-
-def train_model(model, criterion, optimizer, dataloaders, num_epochs=3):
+def train_model(model, criterion, optimizer, dataloaders, num_epochs=10, images_every=10):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
 
@@ -119,6 +118,8 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=3):
         inputs, labels = next(iter(dataloaders['validation']))
         inputs = inputs.to(device)
         labels = labels.to(device)
-        neptune_log_images('False predictions', epoch, inputs, labels, model)
+
+        if (epoch + 1) % images_every == 0:
+            neptune_log_images('False predictions', epoch, inputs, labels, model)
 
     return model
