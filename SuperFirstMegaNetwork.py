@@ -15,8 +15,7 @@ torch.manual_seed(42)
 
 classes = ["apple", "spider", "octopus", "snowflake"]
 
-limit=500
-
+limit = 500
 
 images = []
 
@@ -28,8 +27,7 @@ for label in classes:
 X = np.concatenate(images)
 Y = np.concatenate([limit * [i] for i in range(len(classes))])
 
-print("X shape: {}, type:{}".format(X.shape,X.dtype))
-
+print("X shape: {}, type:{}".format(X.shape, X.dtype))
 
 X = X.reshape(-1, 1, 28, 28)
 X = X.astype('float32') / 255.
@@ -38,30 +36,27 @@ X = np.pad(X, [(0, 0), (0, 0), (2, 2), (2, 2)], mode='constant')
 # (samples, channels, x, y)
 X.shape
 
-
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=42)
-
 
 # define data loaders
 dataloaders = {
     'train':
-    data.DataLoader(
-        data.TensorDataset(torch.from_numpy(X_train), torch.from_numpy(Y_train).long()),
-        batch_size=64,
-        shuffle=True, num_workers=4
-    ),
+        data.DataLoader(
+            data.TensorDataset(torch.from_numpy(X_train), torch.from_numpy(Y_train).long()),
+            batch_size=64,
+            shuffle=True, num_workers=4
+        ),
     'validation':
-    data.DataLoader(
-        data.TensorDataset(torch.from_numpy(X_test), torch.from_numpy(Y_test).long()),
-        batch_size=64,
-        shuffle=False, num_workers=4
-    )
+        data.DataLoader(
+            data.TensorDataset(torch.from_numpy(X_test), torch.from_numpy(Y_test).long()),
+            batch_size=64,
+            shuffle=False, num_workers=4
+        )
 }
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 if torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
 
 device.type
 
@@ -120,11 +115,11 @@ class Flatten(nn.Module):
 
 class PrimeNet(nn.Module):
     def __init__(self, activation_fun, reduction_fun, conv_block_count, conv_count, linear_count=1, k_size=3):
-
         # when 32x32 there can be conv_block in [0,4]
         super().__init__()
         init_size = 32
-		self.kernel_size=k_size
+        self.k_size = k_size
+        self.padding = int(self.k_size / 2)
         self.activation_fun = activation_fun
         self.reduction_fun = reduction_fun
         self.conv_block = []
@@ -161,14 +156,14 @@ class PrimeNet(nn.Module):
 
     def _conv_block(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=self.kernel_size, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=self.k_size, padding=self.padding),
             self.activation_fun(inplace=True),
             self.reduction_fun(2, 2)
         )
 
     def _conv(self, in_channels, out_channels):
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=self.kernel_size, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=self.k_size, padding=self.padding),
             self.activation_fun(inplace=True)
         )
 
@@ -197,7 +192,8 @@ class PrimeNet(nn.Module):
             x = linear(x)
         x = self.fc(x)
         return x
-		
+
+
 def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
     if not intermediate_channels:
         intermediate_channels = in_channels
@@ -207,6 +203,8 @@ def make_connector_2conv(in_channels, out_channels, intermediate_channels=None):
         nn.Conv2d(intermediate_channels, out_channels, kernel_size=1, padding=0),
         nn.ReLU(inplace=True)
     )
+
+
 def make_connector_1conv(in_channels, out_channels, intermediate_channels=None):
     if not intermediate_channels:
         intermediate_channels = in_channels
@@ -214,21 +212,23 @@ def make_connector_1conv(in_channels, out_channels, intermediate_channels=None):
         nn.Conv2d(in_channels, intermediate_channels, kernel_size=1, padding=0),
         nn.ReLU(inplace=True)
     )
+
+
 class SewnConvNet(nn.Module):
     def __init__(self, net_before, net_after, connector):
         super().__init__()
         self.net_before = net_before.eval()
         self.net_after = net_after.eval()
         self.connector = connector
-        
+
         self._assert_channels()
-    
+
     def forward(self, x):
         x = self.net_before(x)
         x = self.connector(x)
         x = self.net_after(x)
         return x
-    
+
     def _assert_channels(self):
         '''
         net_before, net_after, connector - nn.Sequential or nn.ModuleList
@@ -239,32 +239,32 @@ class SewnConvNet(nn.Module):
             raise ValueError('Connector has {} input channels, expected {}.'.format(
                 connector_in_channels, before_out_channels)
             )
-        
+
         connector_out_channels = self._find_out_channels(self.connector)
         after_in_channels = self._find_in_channels(self.net_after)
         if after_in_channels != connector_out_channels:
             raise ValueError('Connector has {} output channels, expected {}.'.format(
                 connector_out_channels, after_in_channels)
             )
-    
+
     def parameters(self, recurse=True):
         return self.connector.parameters()
-    
+
     def train(self, mode=True):
         self.training = mode
         self.connector.train(mode)
         return self
-    
+
     def eval(self):
         return self.train(False)
-    
+
     def _find_in_channels(self, half):
         for m in half.modules():
             if isinstance(m, nn.Conv2d):
                 return m.in_channels
             if isinstance(m, nn.Linear):
                 return m.in_features
-    
+
     def _find_out_channels(self, half):
         out_channels = None
         for m in half.modules():
