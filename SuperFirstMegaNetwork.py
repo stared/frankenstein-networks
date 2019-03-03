@@ -1,3 +1,5 @@
+from multiprocessing import freeze_support
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -54,9 +56,7 @@ dataloaders = {
         )
 }
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-if torch.cuda.is_available():
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+device = torch.device('cpu')
 
 device.type
 
