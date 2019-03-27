@@ -33,13 +33,14 @@ def make_connector(in_channels, out_channels, intermediate_channels=None):
     )
 
 class SewnConvNet(nn.Module):
-    def __init__(self, net_before, net_after, connector):
+    def __init__(self, net_before, net_after, connector, check_channels=True):
         super().__init__()
         self.net_before = net_before.eval()
         self.net_after = net_after.eval()
         self.connector = connector
 
-        self._assert_channels()
+        if check_channels:
+            self._assert_channels()
 
     def forward(self, x):
         x = self.net_before(x)
@@ -187,7 +188,7 @@ def neptune_log_scalars(epoch, logs={}):
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-def train_model(model, criterion, optimizer, num_epochs=10):
+def train_model(model, criterion, optimizer, num_epochs=10, train=True):
     model = model.to(device)
 
     for epoch in range(num_epochs):
@@ -208,7 +209,7 @@ def train_model(model, criterion, optimizer, num_epochs=10):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
 
-                if phase == 'train':
+                if phase == 'train' and train:
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
@@ -268,10 +269,28 @@ class Vgg16Limbs(nn.Module):
 
 vgg_left = Vgg16Limbs(layer_num=12, left=True)
 vgg_right = Vgg16Limbs(layer_num=12, left=False)
-connector1 = make_connector(256, 256)
 
-sewn_model1 = SewnConvNet(vgg_left, vgg_right, connector1)
+connector_type = 'identity'
+
+if connector_type == 'identity':
+    connector1 = nn.Sequential()
+else:
+    connector1 = make_connector(256, 256)
+
+class DummyOptimizer():
+    def __init__(self):
+        pass
+    def step(self):
+        pass
+    def zero_grad(self):
+        pass
+
+sewn_model1 = SewnConvNet(vgg_left, vgg_right, connector1, check_channels=(connector_type != 'identity'))
 criterion = nn.CrossEntropyLoss()
-optimizer1 = optim.Adam(sewn_model1.parameters(), lr=1e-2)
 
-sewn_model1_trained = train_model(sewn_model1, criterion, optimizer1, num_epochs=20)
+if connector_type != 'identity':
+    optimizer1 = optim.Adam(sewn_model1.parameters(), lr=1e-2)
+else:
+    optimizer1 = DummyOptimizer()
+
+sewn_model1_trained = train_model(sewn_model1, criterion, optimizer1, num_epochs=5, train=(connector_type != 'identity'))
