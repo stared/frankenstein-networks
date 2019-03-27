@@ -157,8 +157,8 @@ data_transforms = {
 }
 
 image_datasets = {
-    'train': ImgNetDataset('/input/uploads/',transform=data_transforms['train'], train=True),
-    'validation': ImgNetDataset('/input/uploads/',transform=data_transforms['validation'], train=False)
+    'train': ImgNetDataset('/input/',transform=data_transforms['train'], train=True),
+    'validation': ImgNetDataset('/input/',transform=data_transforms['validation'], train=False)
 }
 
 dataloaders = {

@@ -4,12 +4,17 @@ name: IM
 description: ""
 
 environment: pytorch-1.0.0-gpu-py3
-worker: s-k80-preemptible
+worker: s-p100-preemptible
+
+input:
+- ILSVRC2012_validation_ground_truth.txt
+- ILSVRC2012_img_val_classified
+- ILSVRC2012_img_val
 
 parameters:
   epochs: 10
   learning_rate: 0.0001
-  batch_size: 64
+  batch_size: 32
   model:
     value: 'conv'
     description: 'logistic or mlp or conv'
