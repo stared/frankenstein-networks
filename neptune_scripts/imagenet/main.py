@@ -176,12 +176,14 @@ dataloaders = {
 
 import neptune
 
+ctx = neptune.Context()
+
 def neptune_log_scalars(epoch, logs={}):
     # logging numeric channels
-    neptune.send_metric('Accuracy training', epoch, logs['accuracy'])
-    neptune.send_metric('Accuracy validation', epoch, logs['val_accuracy'])
-    neptune.send_metric('Log-loss training', epoch, logs['log loss'])
-    neptune.send_metric('Log-loss validation', epoch, logs['val_log loss'])
+    ctx.channel_send('Accuracy training', epoch, logs['accuracy'])
+    ctx.channel_send('Accuracy validation', epoch, logs['val_accuracy'])
+    ctx.channel_send('Log-loss training', epoch, logs['log loss'])
+    ctx.channel_send('Log-loss validation', epoch, logs['val_log loss'])
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -270,6 +272,6 @@ connector1 = make_connector(256, 256)
 
 sewn_model1 = SewnConvNet(vgg_left, vgg_right, connector1)
 criterion = nn.CrossEntropyLoss()
-optimizer1 = optim.Adam(sewn_model1.parameters(), lr=1e-3)
+optimizer1 = optim.Adam(sewn_model1.parameters(), lr=1e-2)
 
 sewn_model1_trained = train_model(sewn_model1, criterion, optimizer1, num_epochs=20)
