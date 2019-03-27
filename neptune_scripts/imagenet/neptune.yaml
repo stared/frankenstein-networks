@@ -1,0 +1,15 @@
+project: brainhackwarsaw/ImageNet
+
+name: IM
+description: ""
+
+environment: pytorch-1.0.0-gpu-py3
+worker: s-k80-preemptible
+
+parameters:
+  epochs: 10
+  learning_rate: 0.0001
+  batch_size: 64
+  model:
+    value: 'conv'
+    description: 'logistic or mlp or conv'
