@@ -3,13 +3,12 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 
-from deepsense import neptune
+import neptune
 from PIL import Image
 
 # neptune
 
 ctx = neptune.Context()
-
 
 def neptune_log_scalars(epoch, logs={}):
     # logging numeric channels
