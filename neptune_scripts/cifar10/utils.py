@@ -68,7 +68,9 @@ def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def save_all(model):
+def save_all(model, full_model=False):
+    if full_model:
+        torch.save(model, '/output/model.pth')
     torch.save(model.state_dict(), '/output/weights.h5')
     print("Model saved.")
 

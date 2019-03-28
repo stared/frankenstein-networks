@@ -38,4 +38,4 @@ print(model)
 
 # training
 utils.train_model(model, criterion, optimizer, dataloaders, num_epochs=epochs)
-utils.save_all(model)
+utils.save_all(model, full_model=True)
