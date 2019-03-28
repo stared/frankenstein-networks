@@ -5,11 +5,13 @@ description: ""
 
 environment: pytorch-1.0.0-gpu-py3
 worker: s-k80-preemptible
+input:
+- cifar_pytorch
 
 parameters:
-  epochs: 10
+  epochs: 20
   learning_rate: 0.0001
-  batch_size: 64
-  model:
-    value: 'conv'
-    description: 'logistic or mlp or conv'
+  batch_size: 32
+  model: convnet1
+  channel_sequence: "[32, 64, 64, 64]"
+  fc_type: linear
