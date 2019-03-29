@@ -30,11 +30,12 @@ class ConvNet1(nn.Module):
     def __init__(self,
                  n_classes=10,
                  channel_sequence=[32, 64, 64, 64],
-                 fc_type='linear'):
+                 fc_type='linear',
+                 block_type='3x3'):
         super().__init__()
 
         cs = [3] + channel_sequence
-        layers = [self._block(cs[i], cs[i+1]) for i in range(len(channel_sequence))]
+        layers = [self._block(cs[i], cs[i+1], block_type) for i in range(len(channel_sequence))]
         self.convs = nn.Sequential(*layers)
 
         self.last_conv_res = 32 // 2**len(self.convs)
@@ -60,12 +61,30 @@ class ConvNet1(nn.Module):
         else:
             raise Exception("No fc_type: " + fc_type)
 
-    def _block(self, in_channels, out_channels):
-        return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2, 2)
-        )
+    def _block(self, in_channels, out_channels, block_type):
+        if block_type == '3x3':
+            return nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, 3, padding=1),
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(2, 2)
+            )
+        elif block_type == '3x3->1x1':
+            return nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, 3, padding=1),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(out_channels, out_channels, 1)
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(2, 2)
+            )
+        elif block_type == '3x3->bn->1x1':
+            return nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, 3, padding=1),
+                nn.ReLU(inplace=True),
+                nn.BatchNorm2d(out_channels),
+                nn.Conv2d(out_channels, out_channels, 1)
+                nn.ReLU(inplace=True),
+                nn.MaxPool2d(2, 2)
+            )
 
     def forward(self, x):
         x = self.convs(x)

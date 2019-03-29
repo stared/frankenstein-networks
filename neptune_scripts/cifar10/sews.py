@@ -48,6 +48,7 @@ def make_connector(in_channels, out_channels, intermediate_channels=None):
     return nn.Sequential(
         nn.Conv2d(in_channels, intermediate_channels, kernel_size=1, padding=0),
         nn.ReLU(inplace=True),
+#        nn.Dropout2d(p=0.5, inplace=False),
         nn.Conv2d(intermediate_channels, out_channels, kernel_size=1, padding=0),
         nn.ReLU(inplace=True)
     )
