@@ -1,4 +1,10 @@
+import torch
 from torch import nn
+
+def get_out_channels(submodel):
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    x = torch.rand(1, 3, 32, 32).to(device)
+    return submodel(x).size(1)
 
 def get_in_channels(submodel):
     if isinstance(submodel, nn.Sequential):
@@ -10,16 +16,6 @@ def get_in_channels(submodel):
     else:
         raise Exception("Layer not supported for in_channels: {}".format(submodel.__class__))
 
-# does not work, fix
-def get_out_channels(submodel):
-    if isinstance(submodel, nn.Sequential):
-        return get_out_channels(submodel[-1])
-    elif isinstance(submodel, nn.Linear):
-        return submodel.out_features
-    elif isinstance(submodel, nn.Conv2d):
-        return submodel.out_channels
-    else:
-        raise Exception("Layer not supported for out_channels: {}".format(submodel.__class__))
 
 class ModelLeftPart(nn.Module):
     def __init__(self, original_model, cut_at):
@@ -29,7 +25,6 @@ class ModelLeftPart(nn.Module):
     def forward(self, x):
         x = self.convs(x)
         return x
-
 
 
 class ModelRightPart(nn.Module):

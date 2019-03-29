@@ -54,8 +54,7 @@ print("---\n")
 
 # making a connection
 
-c1out = 64  # dirty hack
-#c1out = sews.get_out_channels(model1cut.convs)
+c1out = sews.get_out_channels(model1cut.convs)
 c2in = sews.get_in_channels(model2cut.convs)
 ctx.channel_send('M1 Channels Out', 0, c1out)
 ctx.channel_send('M2 Channels In', 0, c2in)
