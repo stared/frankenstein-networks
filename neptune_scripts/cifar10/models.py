@@ -72,7 +72,7 @@ class ConvNet1(nn.Module):
             return nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, 3, padding=1),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(out_channels, out_channels, 1)
+                nn.Conv2d(out_channels, out_channels, 1),
                 nn.ReLU(inplace=True),
                 nn.MaxPool2d(2, 2)
             )
@@ -81,10 +81,12 @@ class ConvNet1(nn.Module):
                 nn.Conv2d(in_channels, out_channels, 3, padding=1),
                 nn.ReLU(inplace=True),
                 nn.BatchNorm2d(out_channels),
-                nn.Conv2d(out_channels, out_channels, 1)
+                nn.Conv2d(out_channels, out_channels, 1),
                 nn.ReLU(inplace=True),
                 nn.MaxPool2d(2, 2)
             )
+        else:
+            raise Exception("Unknown block type: ", block_type)
 
     def forward(self, x):
         x = self.convs(x)

@@ -16,6 +16,7 @@ epochs = ctx.params['epochs']
 learning_rate = ctx.params['learning_rate']
 batch_size = ctx.params['batch_size']
 
+block_type = ctx.params['block_type']
 channel_sequence = json.loads(ctx.params['channel_sequence'])
 fc_type = ctx.params['fc_type']
 
@@ -27,7 +28,8 @@ dataloaders = data.get_dataloaders('/input/cifar_pytorch', batch_size=batch_size
 # network
 model = models.MODELS[model_name](
     channel_sequence=channel_sequence,
-    fc_type=fc_type
+    fc_type=fc_type,
+    block_type=block_type
 )
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.CrossEntropyLoss(size_average=False)
