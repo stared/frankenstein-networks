@@ -6,13 +6,18 @@ command:
 name: CIFAR10
 description: ""
 
+input:
+- cifar_pytorch
+- /CIF-89/output/model.pth:model1.pth
+- /CIF-89/output/model.pth:model2.pth
+
 environment: pytorch-1.0.0-gpu-py3
-worker: s-k80-preemptible
+worker: s-k80
 tags: [sew]
 
 parameters:
   epochs: 20
-  learning_rate: 0.001
+  learning_rate: 0.0001
   batch_size: 32
-  model1_cut_at: 2
-  model2_cut_at: 2
+  model1_cut_at: 4
+  model2_cut_at: 4
