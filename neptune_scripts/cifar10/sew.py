@@ -15,7 +15,10 @@ import neptune
 ctx = neptune.Context()
 
 model1_cut_at = ctx.params['model1_cut_at']
-model2_cut_at = ctx.params['model2_cut_at']
+
+# quick and dirty - same cuts
+model2_cut_at = model1_cut_at
+# model2_cut_at = ctx.params['model2_cut_at']
 epochs = ctx.params['epochs']
 learning_rate = ctx.params['learning_rate']
 batch_size = ctx.params['batch_size']
@@ -55,7 +58,12 @@ print("---\n")
 # making a connection
 
 c1out = sews.get_out_channels(model1cut.convs)
-c2in = sews.get_in_channels(model2cut.convs)
+
+# super dirty for last minute changes, will work only
+# for same number of channel stuff
+c2in = c1out
+# c2in = sews.get_in_channels(model2cut.convs)
+
 ctx.channel_send('M1 Channels Out', 0, c1out)
 ctx.channel_send('M2 Channels In', 0, c2in)
 connector = sews.make_connector(c1out, c2in)

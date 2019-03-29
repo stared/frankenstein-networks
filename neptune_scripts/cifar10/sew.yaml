@@ -8,16 +8,26 @@ description: ""
 
 input:
 - cifar_pytorch
-- /CIF-89/output/model.pth:model1.pth
-- /CIF-89/output/model.pth:model2.pth
+- /CIF-117/output/model.pth:model1.pth
+- /CIF-111/output/model.pth:model2.pth
+
+#CIF-117 3x3->bn->1x1 nonlinear_dropout
+#CIF-111 3x3->bn->1x1 nonlinear_dropout
+#CIF-109 3x3->bn->1x1 linear
+#CIF-105 3x3 nonlinear_dropout
+# CIF-101 3x3 linear
 
 environment: pytorch-1.0.0-gpu-py3
 worker: s-k80
-tags: [sew]
+tags: [sew, diffinsta]
 
 parameters:
   epochs: 20
   learning_rate: 0.0001
   batch_size: 32
-  model1_cut_at: 3
-  model2_cut_at: 3
+  model1_cut_at: [1,2,3,4]
+  # model2_cut_at: 3
+
+metric:
+  channel: "Log-loss validation"
+  goal: minimize

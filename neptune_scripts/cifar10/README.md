@@ -10,8 +10,10 @@ $ neptune send
 For sewing
 
 ```
-$ neptune send --config sew.yaml --input cifar_pytorch --input /CIF-52/output/model.pth:model1.pth --input /CIF-52/output/model.pth:model2.pth
+$ neptune send --config sew.yaml
 ```
+
+Experiments are visible at: https://app.neptune.ml/o/brainhackwarsaw/org/CIFAR10/experiments
 
 ---
 
