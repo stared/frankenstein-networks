@@ -10,6 +10,7 @@ def get_in_channels(submodel):
     else:
         raise Exception("Layer not supported for in_channels: {}".format(submodel.__class__))
 
+# does not work, fix
 def get_out_channels(submodel):
     if isinstance(submodel, nn.Sequential):
         return get_out_channels(submodel[-1])

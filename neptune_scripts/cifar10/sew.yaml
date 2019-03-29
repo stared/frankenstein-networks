@@ -1,19 +1,18 @@
 project: brainhackwarsaw/CIFAR10
 
+command:
+- "sew.py"
+
 name: CIFAR10
 description: ""
 
 environment: pytorch-1.0.0-gpu-py3
 worker: s-k80-preemptible
-input:
-- cifar_pytorch
 tags: [sew]
 
 parameters:
   epochs: 20
   learning_rate: 0.001
   batch_size: 32
-  #model1: convnet1
   model1_cut_at: 2
-  #model2: convnet2
   model2_cut_at: 2

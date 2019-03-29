@@ -7,10 +7,10 @@ Use `main.py`
 $ neptune send
 ```
 
-For sewing,
+For sewing
 
 ```
-$ neptune send sew.py --config sew.yaml --input ../CIF-50/output/model.pth:model1.pth --input ../CIF-66/output/model.pth:model2.pth
+$ neptune send --config sew.yaml --input cifar_pytorch --input /CIF-52/output/model.pth:model1.pth --input /CIF-52/output/model.pth:model2.pth
 ```
 
 ---
