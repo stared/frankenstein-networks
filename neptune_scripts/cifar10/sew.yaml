@@ -19,5 +19,5 @@ parameters:
   epochs: 20
   learning_rate: 0.0001
   batch_size: 32
-  model1_cut_at: 4
-  model2_cut_at: 4
+  model1_cut_at: 3
+  model2_cut_at: 3
